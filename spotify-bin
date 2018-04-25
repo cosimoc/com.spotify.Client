@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+
+from gi.repository import Gio
+
+import subprocess
+import sys
+
+argv = sys.argv[1:]
+argv.insert(0, '/app/extra/bin/spotify')
+
+try:
+    proxy = Gio.DBusProxy.new_for_bus_sync(Gio.BusType.SESSION,
+                                           Gio.DBusProxyFlags.NONE,
+                                           None,
+                                           'org.gnome.Mutter.DisplayConfig',
+                                           '/org/gnome/Mutter/DisplayConfig',
+                                           'org.gnome.Mutter.DisplayConfig',
+                                           None)
+    display_state = proxy.call_sync('GetCurrentState',
+                                    None,
+                                    Gio.DBusCallFlags.NONE,
+                                    -1,
+                                    None)
+    serial, monitors, logical_monitors, properties = display_state.unpack()
+    scale_factor = properties.get('legacy-ui-scaling-factor')
+    argv.insert(1, '--force-device-scale-factor={0:.1f}'.format(scale_factor))
+except Exception:
+    print('Could not determine display scale factor, running with default.')
+
+subprocess.check_call(argv)

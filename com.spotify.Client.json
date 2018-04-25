@@ -23,6 +23,7 @@
         "--talk-name=org.gnome.SettingsDaemon",
         "--talk-name=org.freedesktop.Notifications",
         "--talk-name=org.gnome.SessionManager",
+        "--talk-name=org.gnome.Mutter.DisplayConfig",
         "--own-name=org.mpris.MediaPlayer2.spotify",
         "--filesystem=xdg-music:ro",
         "--env=LD_LIBRARY_PATH=/app/lib"
@@ -156,11 +157,47 @@
             ]
         },
         {
+            "name": "pycairo",
+            "build-options" : {
+                "env": {
+                    "PYTHON": "/usr/bin/python3"
+                }
+            },
+            "buildsystem": "simple",
+            "build-commands": [
+                "python3 ./setup.py build",
+                "python3 ./setup.py install --prefix=/app"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/pygobject/pycairo/releases/download/v1.16.3/pycairo-1.16.3.tar.gz",
+                    "sha256": "5bb321e5d4f8b3a51f56fc6a35c143f1b72ce0d748b43d8b623596e8215f01f7"
+                }
+            ]
+        },
+        {
+            "name": "pygobject",
+            "config-opts": ["--enable-compile-warnings=minimum"],
+            "build-options" : {
+                "env": {
+                    "PYTHON": "/usr/bin/python3"
+                }
+            },
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://download.gnome.org/sources/pygobject/3.28/pygobject-3.28.2.tar.xz",
+                    "sha256": "ac443afd14fcb9ff5744b65d6e2b380e70510278404fb8684a9b9fb089e6f2ca"
+                }
+            ]
+        },
+        {
             "name": "spotify",
             "buildsystem": "simple",
             "build-commands": [
                 "install apply_extra /app/bin",
-                "install spotify.sh /app/bin/spotify",
+                "install spotify-bin /app/bin/spotify",
                 "install -Dm644 com.spotify.Client.appdata.xml /app/share/appdata/com.spotify.Client.appdata.xml",
                 "cp /usr/bin/ar /app/bin",
                 "cp /usr/lib/libbfd-*.so /app/lib"
@@ -189,13 +226,12 @@
                     ]
                 },
                 {
-                    "type": "script",
-                    "commands": ["exec /app/extra/bin/spotify \"$@\""],
-                    "dest-filename": "spotify.sh"
+                    "type": "file",
+                    "path": "com.spotify.Client.appdata.xml"
                 },
                 {
                     "type": "file",
-                    "path": "com.spotify.Client.appdata.xml"
+                    "path": "spotify-bin"
                 },
                 {
                     "type": "extra-data",
